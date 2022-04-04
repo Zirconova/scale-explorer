@@ -13,23 +13,19 @@
 		<h1 id="modeValue">Mode 1</h1>
 	</div>
 	<div id="options">
-		<div id="speed">
-			<input type="range" id="scaleSpeed" min="1" max="13" value="7" step="1">
-			<h2 id="speedValue">Speed</h2>
-		</div>
 		<div id="expBtns">
+			<h2 id="speedValue">Speed</h2>
+			<input type="range" id="scaleSpeed" min="1" max="13" value="7" step="1">
 			<button id="playScale" onclick="callScale(0)">Play scale</button>
 			<button id="playScale" onclick="callScale(1)">Play scale as cluster</button>
 		</div>
-		<br>
 		<div id="buttonSeparator"></div>
-		<br>
 		<div id="testBtns">
 			<button id="playRnd" onclick="genRnd()">Play New Random Scale</button>
 			<button id="repRnd" onclick="playScale(rndTonic, rndParent, rndMode, 0)">Repeat Random Scale</button>
 			<button id="check" onclick="check()">Check</button>
 		</div>
-		<h1 id="result">Set the sliders to your guess</h1>
+		<!--<h1 id="result">Set the sliders to your guess</h1>-->
 	</div>
 </body>
 <script type="text/javascript">
@@ -233,44 +229,38 @@
 
 	#options {
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 		margin: 0 auto;
 		max-width: 35rem;
-		height: 15rem;
-	}
-
-	#speed {
-		float: left;
-		margin-left: 7%;
-		padding-top: 10px;
-		width: 20%;
-		height: 30%;
+		height: 8rem;
+		border: 1px solid white;
 	}
 
 	#expBtns {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		float: right;
-		margin-right: 7%;
-		width: 60%;
-		height: 30%;
+		width: 100%;
+		height: 40%;
+		border: 1px solid magenta;
 	}
 
 	#buttonSeparator {
-		position: absolute;
-		top: 30%;
 		width: 100%;
-		height: 5px;
+		height: 1rem;
 		background-color: #444444;
-		margin: auto;
+		margin: 0;
 	}
 
 	#testBtns {
 		width: 100%;
-		height: 30%;
+		height: 40%;
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		border: 1px solid cyan;
 	}
 
 	button {
@@ -279,17 +269,6 @@
 		cursor: pointer;
 		opacity: 1;
 		-webkit-transition: opacity 0.2s; 
-	}
-
-	@media only screen and (orientation: portrait) {
-		button {
-			font-size: 2rem;
-		}
-
-		#options {
-			max-width: 50rem;
-			height: 30rem;
-		}
 	}
 
 	button:hover {
@@ -305,7 +284,7 @@
 		font-weight: bold;
 		color: #cccccc;
 		width: 100%;
-		font-size: 6rem;
+		font-size: 5rem;
 		opacity: 0.4;
 		-webkit-transition: 0.2s;
 		text-align: center;
@@ -329,7 +308,7 @@
 		font-family: helvetica;
 		font-weight: lighter;
 		color: #eeeeee;
-		font-size: 16px;
+		font-size: 1rem;
 	}
 
 	#result {
@@ -359,7 +338,7 @@
 
 	input[type=range] {
 		-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
-		width: 15rem; /* Specific width is required for Firefox. */
+		width: 25rem; /* Specific width is required for Firefox. */
 		background: transparent; /* Otherwise white in Chrome */
 		overflow: hidden;
 		opacity: 0.8;
@@ -383,12 +362,12 @@
 	}
 
 	#scaleSpeed {
-		width: 100%;
-		height: 16px;
+		width: 30%;
+		height: 32px;
 	}
 
 	#scaleSpeed::-webkit-slider-thumb {
-		width: 16px;
+		width: 32px;
 		height: 32px;
 		box-shadow: -200px 0 0 200px #002a88;
 	}
@@ -400,6 +379,17 @@
 		cursor: pointer;
 		background: #aaaaaa;
 		border-radius: 2px;
+	}
+
+	@media only screen and (orientation: portrait) {
+		button {
+			font-size: 2rem;
+		}
+
+		#options {
+			max-width: 50rem;
+			max-height: 25rem;
+		}
 	}
 
 </style>
