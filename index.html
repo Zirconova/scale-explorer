@@ -1,0 +1,391 @@
+<html>
+<head>
+	<title>Scale Explorer</title>
+</head>
+<body>
+	<header>Scale Explorer</header>
+	<div id="sliders">
+		<input type="range" id="tonic" min="0" max="11" value="0" step="1">
+		<h1 id="tonicValue">C</h1>
+		<input type="range" id="parent" min="0" max="3" value="0" step="1">
+		<h1 id="parentValue">Major</h1>
+		<input type="range" id="mode" min="0" max="6" value="0" step="1">
+		<h1 id="modeValue">Mode 1</h1>
+	</div>
+	<div id="options">
+		<div id="speed">
+			<input type="range" id="scaleSpeed" min="1" max="13" value="7" step="1">
+			<h2 id="speedValue">Speed</h2>
+		</div>
+		<div id="expBtns">
+			<button id="playScale" onclick="callScale(0)">Play scale</button>
+			<button id="playScale" onclick="callScale(1)">Play scale as cluster</button>
+		</div>
+		<br>
+		<div id="buttonSeparator"></div>
+		<br>
+		<div id="testBtns">
+			<button id="playRnd" onclick="genRnd()">Play New Random Scale</button>
+			<button id="repRnd" onclick="playScale(rndTonic, rndParent, rndMode, 0)">Repeat Random Scale</button>
+			<button id="check" onclick="check()">Check</button>
+		</div>
+		<h1 id="result">Set the sliders to your guess</h1>
+	</div>
+</body>
+<script type="text/javascript">
+
+	var tonicSlider = document.getElementById("tonic");
+	var parentSlider = document.getElementById("parent");
+	var modeSlider = document.getElementById("mode");
+	var tonicValue = document.getElementById("tonicValue");
+	var parentValue = document.getElementById("parentValue");
+	var modeValue = document.getElementById("modeValue");
+
+	var result = document.getElementById("result");
+
+	var rndTonic = 0;
+	var rndParent = 0;
+	var rndMode = 0;
+
+	const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+	function unlockAudioContext(audioCtx) {
+		if (context.state !== 'suspended') return;
+		const b = document.body;
+		const events = ['touchstart','touchend', 'mousedown','keydown'];
+		events.forEach(e => b.addEventListener(e, unlock, false));
+		function unlock() { audioCtx.resume().then(clean); }
+		function clean() { events.forEach(e => b.removeEventListener(e, unlock)); }
+	}
+
+	const notes = [
+		261.63,
+		277.18,
+		293.66,
+		311.13,
+		329.63,
+		349.23,
+		369.99,
+		392.00,
+		415.30,
+		440.00,
+		466.16,
+		493.88
+	];
+
+	const parents = [
+		[2,2,1,2,2,2,1], // Major
+		[2,1,2,2,2,2,1], // Melodic minor
+		[2,1,2,2,1,3,1], // Harmonic minor
+		[2,2,1,2,1,3,1]  // Harmonic major
+	];
+
+	tonicSlider.oninput = function() {
+		switch(this.value) {
+			case "0":
+				tonicValue.innerHTML = "C";
+				break;
+			case "1":
+				tonicValue.innerHTML = "C# / Db";
+				break;
+			case "2":
+				tonicValue.innerHTML = "D";
+				break;
+			case "3":
+				tonicValue.innerHTML = "D# / Eb";
+				break;
+			case "4":
+				tonicValue.innerHTML = "E";
+				break;
+			case "5":
+				tonicValue.innerHTML = "F";
+				break;
+			case "6":
+				tonicValue.innerHTML = "F# / Gb";
+				break;
+			case "7":
+				tonicValue.innerHTML = "G";
+				break;
+			case "8":
+				tonicValue.innerHTML = "G# / Ab";
+				break;
+			case "9":
+				tonicValue.innerHTML = "A";
+				break;
+			case "10":
+				tonicValue.innerHTML = "A# / Bb";
+				break;
+			case "11":
+				tonicValue.innerHTML = "B";
+				break;
+		}
+	}
+
+	parentSlider.oninput = function() {
+		switch (this.value) {
+			case "0":
+				parentValue.innerHTML = "Major";
+				break;
+			case "1":
+				parentValue.innerHTML = "Melodic Minor";
+				break;
+			case "2":
+				parentValue.innerHTML = "Harmonic Minor";
+				break;
+			case "3":
+				parentValue.innerHTML = "Harmonic Major";
+				break;
+		}
+	}
+
+	modeSlider.oninput = function() {
+		modeValue.innerHTML = "Mode " + (parseInt(this.value) + 1);
+	}
+
+	function genRnd() {
+		rndTonic = Math.floor(Math.random() * 12);
+		rndParent = Math.floor(Math.random() * 4);
+		rndMode = Math.floor(Math.random() * 7);
+
+		result.innerHTML = "Set the sliders to your guess";
+
+		playScale(rndTonic, rndParent, rndMode, 0);
+	}
+
+	function check() {
+
+		if (parseInt(tonicSlider.value) == rndTonic && parseInt(parentSlider.value) == rndParent && parseInt(modeSlider.value) == rndMode) {
+			result.innerHTML = "Correct";
+		} else {
+			result.innerHTML = "Incorrect";
+		}
+	}
+
+	function callScale(timing) {
+		let tonic = document.getElementById("tonic").value;
+		let parent = document.getElementById("parent").value;
+		let mode = document.getElementById("mode").value;
+
+		console.log(tonic, parent, mode);
+
+		playScale(parseInt(tonic), parseInt(parent), parseInt(mode), timing);
+	}
+
+	function playScale(tonic, parent, mode, timing) {
+		let dist = 0;
+		//let i = 0;
+
+		proceed = true;
+
+		console.log(tonic, parent, mode);
+
+		for (i = 0; i < 8; i++) {
+			let noteTime = 1000 / (2 ** ((parseInt(document.getElementById("scaleSpeed").value) - 1)/3));
+
+			let oct = 2 ** Math.floor((tonic + dist) / 12);
+			let freq = oct * notes[(tonic + dist) % 12];
+
+			if (timing == 0) {
+				play(freq, i, noteTime);
+			} else {
+				play(freq, 0, 0);
+			}
+
+			dist += parents[parent][(mode+i) % 7];
+		}
+	}
+
+	function play(freq, delay, noteTime) {
+		audioCtx.resume();
+
+		// create Oscillator node
+		const oscillator = audioCtx.createOscillator();
+
+		oscillator.type = 'sawtooth';
+		oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime); // value in hertz
+
+		// create gain node and decaying envelope
+		const now = audioCtx.currentTime+noteTime*delay/1000;
+		const gainControl = audioCtx.createGain();
+		gainControl.gain.setValueAtTime(0, now);
+		gainControl.gain.linearRampToValueAtTime(0.05, now + 0.05);
+		gainControl.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+		oscillator.connect(gainControl); // connect oscillator to gainControl
+		gainControl.connect(audioCtx.destination); // connect gainControl to speakers
+		oscillator.start(audioCtx.currentTime + noteTime*delay/1000);
+		oscillator.stop(audioCtx.currentTime + noteTime*delay/1000 + 0.5); // stop 0.5 seconds after start
+	}
+</script>
+<style type="text/css">
+
+	body {
+		background-color: #333333;
+	}
+
+	#sliders {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin-top: 50px;
+		width: 100%;
+	}
+
+	#options {
+		position: relative;
+		margin: 0 auto;
+		max-width: 35rem;
+		height: 15rem;
+	}
+
+	#speed {
+		float: left;
+		margin-left: 7%;
+		padding-top: 10px;
+		width: 20%;
+		height: 30%;
+	}
+
+	#expBtns {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		float: right;
+		margin-right: 7%;
+		width: 60%;
+		height: 30%;
+	}
+
+	#buttonSeparator {
+		position: absolute;
+		top: 30%;
+		width: 100%;
+		height: 5px;
+		background-color: #444444;
+		margin: auto;
+	}
+
+	#testBtns {
+		width: 100%;
+		height: 30%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	button {
+		margin: 7px;
+		cursor: pointer;
+		opacity: 1;
+		-webkit-transition: opacity 0.2s; 
+	}
+
+	button:hover {
+		opacity: 0.7;
+	}
+
+	button:active {
+		opacity: 0.5;
+	}
+
+	header {
+		font-family: helvetica;
+		font-weight: bold;
+		color: #cccccc;
+		width: 100%;
+		font-size: 5rem;
+		opacity: 0.4;
+		-webkit-transition: 0.2s;
+		text-align: center;
+	}
+
+	header:hover {
+		opacity: 1;
+	}
+
+	h1 {
+		font-family: helvetica;
+		font-weight: lighter;
+		text-align: center;
+		color: #eeeeee;
+		margin-top: 5px;
+		margin-bottom: 50px;
+	}
+
+	h2 {
+		text-align: center;
+		font-family: helvetica;
+		font-weight: lighter;
+		color: #eeeeee;
+		font-size: 16px;
+	}
+
+	#result {
+		margin-top: 0px;
+	}
+
+	button {
+		font-family: helvetica;
+		border-radius: 3px;
+		border: none;
+		color: white;
+		text-align: center;
+		padding-top: 7px;
+		padding-bottom: 7px;
+		padding-left: 10px;
+		padding-right: 10px;
+		background-color: #777777;
+	}
+
+	#playRnd {
+		background-color: teal;
+	}
+
+	#check {
+		background-color: violet;
+	}
+
+	input[type=range] {
+		-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+		width: 15rem; /* Specific width is required for Firefox. */
+		background: transparent; /* Otherwise white in Chrome */
+		overflow: hidden;
+		opacity: 0.8;
+		-webkit-transition: opacity 0.2s;
+	}
+
+	input[type=range]:hover {
+		opacity: 1;
+	}
+
+	input[type=range]::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		height: 16px;
+		width: 16px;
+		background: white;
+		border: none;
+		box-shadow: -200px 0 0 200px turquoise;
+		cursor: pointer;
+		margin-top: 0px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+		/*box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
+	}
+
+	#scaleSpeed {
+		width: 100%;
+	}
+
+	#scaleSpeed::-webkit-slider-thumb {
+		box-shadow: -200px 0 0 200px #002a88;
+	}
+
+	input[type=range]::-webkit-slider-runnable-track {
+		-webkit-appearance: none;
+		width: 100%;
+		height: 16px;
+		cursor: pointer;
+		background: #aaaaaa;
+		border-radius: 2px;
+	}
+
+</style>
+</html>
