@@ -5,11 +5,11 @@
 <body>
 	<header>Scale Explorer</header>
 	<div id="sliders">
-		<input type="range" id="tonic" min="0" max="11" value="0" step="1">
+		<input type="range" class="scaleSlider" id="tonic" min="0" max="11" value="0" step="1">
 		<h1 id="tonicValue">C</h1>
-		<input type="range" id="parent" min="0" max="3" value="0" step="1">
+		<input type="range" class="scaleSlider" id="parent" min="0" max="3" value="0" step="1">
 		<h1 id="parentValue">Major</h1>
-		<input type="range" id="mode" min="0" max="6" value="0" step="1">
+		<input type="range" class="scaleSlider" id="mode" min="0" max="6" value="0" step="1">
 		<h1 id="modeValue">Mode 1</h1>
 	</div>
 	<div id="options">
@@ -236,7 +236,6 @@
 		margin-bottom: 2rem;
 		max-width: 35rem;
 		height: 8rem;
-		border: 1px solid white;
 	}
 
 	#expBtns {
@@ -245,7 +244,6 @@
 		align-items: center;
 		width: 100%;
 		height: 40%;
-		border: 1px solid magenta;
 	}
 
 	#buttonSeparator {
@@ -261,7 +259,6 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		border: 1px solid cyan;
 	}
 
 	button {
@@ -387,8 +384,18 @@
 			font-size: 2rem;
 		}
 
-		input[type=range] {
+		.scaleSlider[type=range] {
+			margin-top: 5rem;
 			max-width: 50rem;
+		}
+
+		.scaleSlider[type=range]::-webkit-slider-thumb {
+			width: 4rem;
+			height: 4rem;
+		}
+
+		.scaleSlider[type=range]::-webkit-slider-runnable-track {
+			height: 4rem;
 		}
 
 		#options {
